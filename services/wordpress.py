@@ -1,6 +1,8 @@
 import os
 import requests
+import uuid
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -15,10 +17,10 @@ def create_post(title: str, content: str, artist: str, thumbnail_url: str, statu
     """
     Create a WordPress post
     """
-    filename = "thumbnail.jpg"
-    download_image(thumbnail_url, filename)
 
-    media = upload_media(filename, filename)
+    filename = f"{uuid.uuid4()}.jpg"
+
+    media = upload_image_from_url(thumbnail_url, filename)
     media_id = media["id"]
     category_id = 956
 
@@ -42,22 +44,34 @@ def create_post(title: str, content: str, artist: str, thumbnail_url: str, statu
     return response.json()
 
 
-def upload_media(file_path: str, filename: str) -> dict:
+def upload_image_from_url(image_url: str, filename: str) -> dict:
+
+
     """
     Upload media to WordPress
     """
-    url = f"{WP_URL}/media"
+    response = requests.get(image_url)
+
+    if response.status_code != 200:
+        raise Exception("Failed to download image")
+
+    files = {
+        "file": (filename, response.content)
+    }
+
     headers = {
         "Content-Disposition": f"attachment; filename={filename}"
     }
 
-    with open(file_path, "rb") as f:
-        response = requests.post(url, headers=headers, files={"file": f}, auth=auth)
+    upload_url = f"{WP_URL}/media"
 
-    if response.status_code not in (200, 201):
-        raise Exception(f"Failed to upload media: {response.status_code} - {response.text}")
+    res = requests.post(upload_url, headers=headers, files=files, auth=auth)
 
-    return response.json()
+    if res.status_code not in (200, 201):
+        raise Exception(f"Failed to upload media: {res.text}")
+
+    return res.json()
+    
 
 def update_post(post_id, status):
     url = f"{WP_URL}/posts/{post_id}"
@@ -90,14 +104,3 @@ def get_or_create_tag(tag_name):
         raise Exception(f"Failed to create tag: {create_res.text}")
 
     return create_res.json()["id"]
-
-def download_image(url, filename):
-    response = requests.get(url)
-
-    if response.status_code != 200:
-        raise Exception("Failed to download image")
-
-    with open(filename, "wb") as f:
-        f.write(response.content)
-
-    return filename
