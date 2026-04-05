@@ -31,7 +31,7 @@ def get_video_metadata(video_id: str) -> dict:
     """
     Fetch video metadata using YouTube oEmbed (no API key required).
     """
-    url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=6hBLjFXf4eg&format=json"
+    url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
 
     response = requests.get(url)
 
@@ -58,12 +58,26 @@ def get_youtube_data(youtube_url: str) -> dict:
         raise ValueError("Invalid YouTube URL")
 
     metadata = get_video_metadata(video_id)
+    thumbnail = get_best_thumbnail(video_id)
 
     return {
         "video_id": video_id,
         "title": metadata["title"],
         "author": metadata["author"],
         "embed_url": get_embed_url(video_id),
-        "thumbnail": metadata["thumbnail"],
+        "thumbnail": thumbnail,
         "embed_html": metadata["html"]
     }
+
+def get_best_thumbnail(video_id):
+    urls = [
+        f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg",
+        f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+    ]
+
+    for url in urls:
+        res = requests.head(url)
+        if res.status_code == 200:
+            return url
+
+    return urls[-1]

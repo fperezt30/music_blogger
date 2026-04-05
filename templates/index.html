@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Music Blogger Agent</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 12px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #38bdf8;
+      border: none;
+      border-radius: 8px;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: gray;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    a {
+      color: #38bdf8;
+    }
+
+    .loading {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .error {
+      color: #f87171;
+      margin-top: 10px;
+    }
+
+    .post-result {
+      margin-top: 10px;
+    }
+
+    .post-result p {
+      margin: 8px 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      padding: 8px 12px;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🎵 Music Blogger Agent</h2>
+  
+  <input id="url" placeholder="Paste YouTube URL..." />
+  
+  <button id="btn" onclick="createPost()">Create Post</button>
+
+  <div class="loading" id="loading"></div>
+  <div class="result" id="result"></div>
+  <p id="statusText">Status: unknown</p>
+  <div class="error" id="error"></div>
+
+  <div id="previewSection" style="display:none; margin-top:20px;">
+  <p>Preview:</p>
+  <a id="postLink" href="#" target="_blank"></a>
+  
+
+  <br><br>
+
+  <button onclick="publishPost()">Publish</button>
+  <button onclick="setDraft()">Send back to Draft</button>
+  
+</div>
+
+<script>
+
+let currentPostId = null;
+let currentPostLink = null;
+
+//CREATE POST 
+async function createPost() {
+  const urlInput = document.getElementById("url").value;
+  const button = document.getElementById("btn");
+  const loading = document.getElementById("loading");
+  const result = document.getElementById("result");
+  const error = document.getElementById("error");
+
+  result.innerHTML = "";
+  error.innerHTML = "";
+
+  if (!urlInput) {
+    error.innerText = "Please enter a URL";
+    return;
+  }
+
+  button.disabled = true;
+  loading.innerText = "⏳ Creating post...";
+
+  try {
+    const response = await fetch("/create-post", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ url: urlInput })
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
+
+    // 🔑 STORE POST DATA
+    currentPostId = data.post_id;
+    currentPostLink = data.publish_link;
+
+
+    result.innerHTML = `
+      <div class="post-result">
+        <p></p>
+
+        <div class="actions">
+          <button class="btn-secondary" onclick="window.open('${data.publish_link}', '_blank')">Open public link</button>
+          <button class="btn-secondary" onclick="setDraft()">Send back to Draft</button>
+        </div>
+      </div>
+
+    `;
+    document.getElementById("statusText").innerText =
+    `Status: ${data.status || "published"}`;
+  
+
+  } catch (err) {
+    error.innerText = err.message;
+  }
+
+  loading.innerText = "";
+  button.disabled = false;
+}
+
+async function updateStatus(status) {
+  if (!currentPostId) {
+    alert("No post available");
+    return;
+  }
+
+  try {
+    const res = await fetch("/update-post-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        post_id: currentPostId,
+        status: status
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
+
+    document.getElementById("statusText").innerText =
+    `Status: ${data.new_status || status}`;
+    
+
+    // Update link if returned
+    if (data.link) {
+      currentPostLink = data.link;
+    }
+
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+// BUTTON ACTIONS
+function setDraft() {
+  updateStatus("draft");
+}
+
+function publishPost() {
+  updateStatus("publish");
+}
+</script>
+
+</body>
+</html>
