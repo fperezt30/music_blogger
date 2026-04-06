@@ -47,7 +47,7 @@ def create_post_from_url():
         {build_embed(yt_data['embed_url'])}
         """
 
-        # 4. Create draft post
+        # 4. Publish a post
         post = create_post(
             title=ai_content["title"],
             content=final_content,
@@ -57,7 +57,7 @@ def create_post_from_url():
         )
 
         return jsonify({
-            "status": "success",
+            "status": "Published",
             "post_id": post["id"],
             "publish_link": post.get("link")
         })
@@ -75,7 +75,7 @@ def update_post_status():
         )
 
         return jsonify({
-            "status": "success",
+            "status": "Draft",
             "new_status": post.get("status"),
             "link": post.get("link")
         })

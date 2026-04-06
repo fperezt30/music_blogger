@@ -6,9 +6,15 @@ venv/
 .env/
 .venv/
 
+# Local tests
+tests/
+
 # Python cache
 __pycache__/
 *.pyc
 
 # OS files
 .DS_Store
+
+#Spotify token
+.cache

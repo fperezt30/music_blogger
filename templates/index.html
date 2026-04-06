@@ -16,7 +16,7 @@
 
   <div class="loading" id="loading"></div>
   <div class="result" id="result"></div>
-  <p id="statusText">Status: unknown</p>
+  <p id="statusText">Post Status: No Request</p>
   <div class="error" id="error"></div>
 
   <div id="previewSection" style="display:none; margin-top:20px;">
@@ -86,8 +86,8 @@ async function createPost() {
       </div>
 
     `;
-    document.getElementById("statusText").innerText =
-    `Status: ${data.status || "published"}`;
+    const statusText = document.getElementById("statusText");
+    statusText.innerText = `Post Status: ${data.status}`;
   
 
   } catch (err) {
@@ -122,8 +122,8 @@ async function updateStatus(status) {
       throw new Error(data.error);
     }
 
-    document.getElementById("statusText").innerText =
-    `Status: ${data.new_status || status}`;
+    const statusText = document.getElementById("statusText");
+    statusText.innerText = `Post Status: ${data.status}`;
     
 
     // Update link if returned
