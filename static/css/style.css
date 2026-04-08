@@ -2,9 +2,8 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: radial-gradient(circle at 20% 30%, #0ea5e9, transparent 80%),
-                radial-gradient(circle at 80% 70%, #6366f1, transparent 80%),
-                radial-gradient(circle at 40% 50%, #4a4b71, transparent 40%),
+    background: radial-gradient(circle at 20% 30%, #0ea5e9, transparent 60%),
+                radial-gradient(circle at 80% 70%, #6366f1, transparent 60%),
                 #020617;
     color: #e2e8f0;
     display: flex;
@@ -12,18 +11,21 @@ body {
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 body::before {
     content: "";
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(56,189,248,0.15), transparent 40%);
-    animation: floatBg 10s linear infinite;
+    position: fixed; 
+    top: -50%;
+    left: -50%;
+    width: 200vw;
+    height: 200vh;
+    background: radial-gradient(circle, rgba(56,189,248,0.12), transparent 60%);
+    animation: floatBg 20s linear infinite;
+    z-index: 0;
+    pointer-events: none;
 }
-
 @keyframes floatBg {
     0% { transform: translate(0,0); }
     50% { transform: translate(-10%, -10%); }
@@ -48,7 +50,7 @@ body::before {
 
 input {
     width: 100%;
-    vox-sizing: border-box;
+    box-sizing: border-box;
     padding: 12px;
     border-radius: 8px;
     border: none;
@@ -57,7 +59,7 @@ input {
 
 button {
     width: 100%;
-    vox-sizing: border-box;
+    box-sizing: border-box;
     padding: 10px;
     background: #38bdf8;
     border: none;
