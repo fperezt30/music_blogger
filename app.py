@@ -61,13 +61,13 @@ def create_post_from_url():
         post = create_post(
             title=LLM_content["title"],
             content=final_content,
-            artist = yt_data["author"],
+            artist = LLM_content["tag"],
             thumbnail_url = yt_data["thumbnail"],
             status="publish"
         )
 
         return jsonify({
-            "status": "Published",
+            "status": "Published ✅",
             "post_id": post["id"],
             "publish_link": post.get("link")
         })

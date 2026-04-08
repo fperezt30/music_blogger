@@ -156,6 +156,7 @@ def generate_post_content(title, author):
         # Merge
         return {
             "title": f"{step1['artist']} - {step1['song_title']} [VIDEO]",
+            "tag": step1["artist"],
             "content": f"Country of Origin: {', '.join(step2['country']) if isinstance(step2['country'], list) else step2['country']}\nGenre: {', '.join(step2['genre'])}\nLabel: {step3['label']}"
         }
      

@@ -1,22 +1,48 @@
 
+
 body {
     font-family: Arial, sans-serif;
-    background: #0f172a;
+    background: radial-gradient(circle at 20% 30%, #0ea5e9, transparent 80%),
+                radial-gradient(circle at 80% 70%, #6366f1, transparent 80%),
+                radial-gradient(circle at 40% 50%, #4a4b71, transparent 40%),
+                #020617;
     color: #e2e8f0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
+    overflow: hidden;
 }
 
+body::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(56,189,248,0.15), transparent 40%);
+    animation: floatBg 10s linear infinite;
+}
+
+@keyframes floatBg {
+    0% { transform: translate(0,0); }
+    50% { transform: translate(-10%, -10%); }
+    100% { transform: translate(0,0); }
+}
+
+
 .container {
-    background: #1e293b;
+    position: relative;
+    z-index: 1;
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     padding: 30px;
-    border-radius: 12px;
-    width: 400px;
+    border-radius: 16px;
+    width: 420px;
     text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 30px rgba(56,189,248,0.15);
 }
 
 input {
@@ -85,4 +111,11 @@ a {
 
 .btn-secondary:hover {
     background-color: #5a6268;
+}
+
+h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #f8fdff;
 }
