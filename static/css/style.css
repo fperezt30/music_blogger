@@ -10,7 +10,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
     overflow: hidden;
 }
@@ -37,16 +37,18 @@ body::before {
     background: rgba(30, 41, 59, 0.6);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    padding: 30px;
+    padding: 20px;
     border-radius: 16px;
-    width: 420px;
+    width: 90%;
+    max-width: 420px;
     text-align: center;
     border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 0 30px rgba(56,189,248,0.15);
 }
 
 input {
-    width: 90%;
+    width: 100%;
+    vox-sizing: border-box;
     padding: 12px;
     border-radius: 8px;
     border: none;
@@ -55,6 +57,7 @@ input {
 
 button {
     width: 100%;
+    vox-sizing: border-box;
     padding: 10px;
     background: #38bdf8;
     border: none;
@@ -96,6 +99,7 @@ a {
 
 .actions {
     display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 
@@ -113,9 +117,18 @@ a {
     background-color: #5a6268;
 }
 
+
+
 h2 {
     font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: 1px;
     color: #f8fdff;
+}
+
+@media (min-width: 600px) {
+    h2 {
+        font-size: 2rem;
+    }
 }

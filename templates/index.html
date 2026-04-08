@@ -5,6 +5,7 @@
   <title>Music Blogger Agent</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -89,6 +90,7 @@ async function createPost() {
         <div class="actions">
           <button class="btn-secondary" onclick="window.open('${data.publish_link}', '_blank')">Open public link</button>
           <button class="btn-secondary" onclick="setDraft()">Send back to Draft</button>
+          <br>
         </div>
       </div>
 
