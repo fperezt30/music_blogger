@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose Flask port
-EXPOSE 8000
+EXPOSE 5000
 
 # Run the app using gunicorn (production server)
 CMD ["python", "app.py"]
