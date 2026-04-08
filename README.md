@@ -1,4 +1,3 @@
-
 Project Description:
 Built an automated music blogging pipeline that converts YouTube videos into structured WordPress posts using a hybrid architecture combining LLM-based content generation with Spotify API metadata enrichment.
 
@@ -6,31 +5,26 @@ Built an automated music blogging pipeline that converts YouTube videos into str
 E2E Pipeline:
 
 YouTube URL (UI - Flask)
-        ↓
 Metadata Extraction (YouTube)
-        ↓
 Step 1: Entity Normalization (LLM)
-        ↓
 Step 2: Metadata Enrichment (Spotify API + LLM fallback)
-        ↓
 Content Generation (LLM - structured blog)
-        ↓
 Image Handling (YouTube thumbnail validation)
-        ↓
 WordPress Publishing (REST API)
-        ↓
 UI Feedback (status + preview link)
 
 Next Features:
+-Improve UX
 -Detect black bars on videos that have lower resolution in thumbnail
 -Define rule for video with less than 10k views -> Follow Spotify Metadata (eg. media puzzle)
--Improve UX
+
 
 Lessons learned:
 -Connect to OpenAI API
 -Prompt Engineering
 -Multistep agent to specialize task
 -Using Multi-Step reasoning vs. MCP
+-Initialization  + Sequence of Actions in Javascript
 
 
 Lessons to learn:

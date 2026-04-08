@@ -1,18 +1,17 @@
-from dotenv import load_dotenv
-import os
-import json
-from google import genai
-from services.spotify import fetch_spotify_metadata
 
+import os
+from dotenv import load_dotenv
+import time
+from services.spotify import fetch_spotify_metadata
+from services.ai_client import generate_with_fallback
 
 load_dotenv()
-# Create client
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
 
 
 def data_normalization(title: str, author: str) -> dict:
     """
-    Generate blog title and content using Gemini (new SDK).
+    Generate blog title and content using Groq.
     """
 
     prompt = f"""
@@ -57,22 +56,15 @@ def data_normalization(title: str, author: str) -> dict:
     "song_title": "Bad Guy"
     }}
     """
-
-    response = client.models.generate_content(
-        model="models/gemini-2.5-flash",
-        contents=prompt
-    )
-
-    output_text = response.text.strip()
-
-    # Clean markdown if present
-    if output_text.startswith("```"):
-        output_text = output_text.replace("```json", "").replace("```", "").strip()
-
     try:
-        return json.loads(output_text)
-    except json.JSONDecodeError:
-        raise ValueError(f"Invalid JSON from Gemini:\n{output_text}")
+        response = generate_with_fallback(prompt)
+        return response
+    except Exception as e:
+        print("Error with data normalization:", str(e))
+        return {
+            "error": True,
+            "message": str(e)
+        }
 
 
 def enrich_song_metadata(artist: str, song_title: str) -> dict:
@@ -119,38 +111,51 @@ def enrich_song_metadata(artist: str, song_title: str) -> dict:
     "label": "Republic Records"
     }}
     """
-
-    response = client.models.generate_content(
-        model="models/gemini-2.5-flash",
-        contents=prompt
-    )
-
-    output_text = response.text.strip()
-
-    # Clean markdown if present
-    if output_text.startswith("```"):
-        output_text = output_text.replace("```json", "").replace("```", "").strip()
-
     try:
-        return json.loads(output_text)
-    except json.JSONDecodeError:
-        raise ValueError(f"Invalid JSON from Gemini:\n{output_text}")
+        response = generate_with_fallback(prompt)
+        return response
+    except Exception as e:
+        print("Error with Song Metadata Enrichment:", str(e))
+        return {
+            "error": True,
+            "message": str(e)
+        }
 
+     
+    
 
 def generate_post_content(title, author):
 
-    # Step 1
-    step1 = data_normalization(title, author)
-    print("Step 1 - Data Normalization:", step1)
-    # Step 2
-    step2 = enrich_song_metadata(step1["artist"],step1["song_title"])
-    print("Step 2 - Song Metadata Enrichment:", step2)
-    step3 = fetch_spotify_metadata(step1["artist"],step1["song_title"])
-    print("Step 3 - Spotify Metadata:", step3)
+        # Step 1
+        step1 = data_normalization(title, author)
+        if step1.get("error"):
+            return {
+                "error": True,
+                "message": step1["message"]
+            }
+        
+        print("Step 1 - Data Normalization:", step1)
+        
+        time.sleep(1.5)  # brief pause to avoid hitting rate limits
+
+        # Step 2
+        step2 = enrich_song_metadata(step1["artist"],step1["song_title"])
+        if step2.get("error"):
+            return {
+                "error": True,
+                "message": step2["message"]
+            }
 
 
-    # Merge
-    return {
-        "title": f"{step1['artist']} - {step1['song_title']} [VIDEO]",
-        "content": f"Country of Origin: {', '.join(step2['country']) if isinstance(step2['country'], list) else step2['country']}\nGenre: {', '.join(step2['genre'])}\nLabel:{step3['label']}"
-    }
+        print("Step 2 - Song Metadata Enrichment:", step2)
+
+        step3 = fetch_spotify_metadata(step1["artist"],step1["song_title"])
+        print("Step 3 - Spotify Metadata:", step3)
+
+
+        # Merge
+        return {
+            "title": f"{step1['artist']} - {step1['song_title']} [VIDEO]",
+            "content": f"Country of Origin: {', '.join(step2['country']) if isinstance(step2['country'], list) else step2['country']}\nGenre: {', '.join(step2['genre'])}\nLabel: {step3['label']}"
+        }
+     

@@ -1,9 +1,11 @@
+from unittest import result
+
 from flask import Flask, request, jsonify, render_template
+import groq
 from services import wordpress
 from services.youtube import get_youtube_data
-from services.gemini_service import generate_post_content
-from services.wordpress import create_post,update_post
-
+from services.wordpress import create_post, update_post
+from services.LLM_service import generate_post_content
 
 app = Flask(__name__)
 
@@ -34,22 +36,30 @@ def create_post_from_url():
         # 1. YouTube
         yt_data = get_youtube_data(youtube_url)
 
-        # 2. Gemini
-        ai_content = generate_post_content(
+
+        # 2 Call LLM to generate content
+
+        LLM_content = generate_post_content(
             yt_data["title"],
             yt_data["author"]
         )
 
+        if LLM_content.get("error"):
+            return jsonify({
+                "error": LLM_content["message"]
+            }), 429
+        
+
         # 3. Build content
         final_content = f"""
-        {ai_content['content']}
+        {LLM_content['content']}
         <br><br>
         {build_embed(yt_data['embed_url'])}
         """
 
         # 4. Publish a post
         post = create_post(
-            title=ai_content["title"],
+            title=LLM_content["title"],
             content=final_content,
             artist = yt_data["author"],
             thumbnail_url = yt_data["thumbnail"],
@@ -69,7 +79,7 @@ def create_post_from_url():
 def update_post_status():
     try:
         data = request.json
-        post = wordpress.update_post(
+        post = update_post(
             post_id=data["post_id"],
             status=data["status"]
         )

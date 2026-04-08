@@ -43,9 +43,11 @@ async function createPost() {
   const loading = document.getElementById("loading");
   const result = document.getElementById("result");
   const error = document.getElementById("error");
+  const statusText = document.getElementById("statusText");
 
   result.innerHTML = "";
   error.innerHTML = "";
+  statusText.innerText = "Post Status: Request Initiated";
 
   if (!urlInput) {
     error.innerText = "Please enter a URL";
@@ -53,7 +55,7 @@ async function createPost() {
   }
 
   button.disabled = true;
-  loading.innerText = "⏳ Creating post...";
+  loading.innerText = "";
 
   try {
     const response = await fetch("/create-post", {
@@ -66,7 +68,9 @@ async function createPost() {
 
     const data = await response.json();
 
+    // handle API errors
     if (data.error) {
+      statusText.innerText = "Post Status: Request Failed";
       throw new Error(data.error);
     }
 
@@ -86,11 +90,13 @@ async function createPost() {
       </div>
 
     `;
-    const statusText = document.getElementById("statusText");
+    
+    // success status
     statusText.innerText = `Post Status: ${data.status}`;
   
-
+    // other kind of errors
   } catch (err) {
+    statusText.innerText = "Post Status: Request Failed";
     error.innerText = err.message;
   }
 
